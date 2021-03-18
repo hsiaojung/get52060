@@ -13,6 +13,10 @@ from selenium.webdriver.common.keys import Keys
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import process
+from datetime import date
+from datetime import datetime
+import sys
+import check
 
 
 timex = 4
@@ -28,9 +32,6 @@ options.add_argument("--disable-extensions")
 options.add_argument("--dns-prefetch-disable")
 options.add_argument("enable-automation")
 
-driver = webdriver.Chrome(chrome_options=options, executable_path=r'/home/pi/work/stock/getPrice/i386/usr/bin/chromedriver')
-##driver = webdriver.Chrome(chrome_options=options, executable_path=r'/home/pi/work/stock/getPrice/chromedriver_linux64/chromedriver')
-###driver=webdriver.Chrome(executable_path='/home/pi/work/stock/getPrice/chromedriver_linux64/chromedriver')
 
 fstock_name = [] 
 fstock_num = [] 
@@ -93,9 +94,7 @@ mystock_num = ['0050',
 ]
 url ='https://www.wantgoo.com/login/auth/apilogin?returnUrl=/stock/institutional-investor/foreign/double-long'
 
-driver.get(url) 
-driver.maximize_window()  
-sleep(2)  
+
 allVlue = 11
 fstock_name = [] 
 fstock_num = [] 
@@ -109,9 +108,41 @@ fstock_num.clear()
 tstock_name.clear()
 tstock_num.clear()                           
 
+times = "0000000"
+
+def toGetTimeFile(times):
+
+    today = date.today()
+    now = datetime.now()
+    current_time = now.strftime("%H:%M:%S")
+    print("Current Time =", current_time)
+
+    '''
+    d1 = today.strftime("%d/%m/%Y")
+    print("d1 =", d1)
+
+    # Textual month, day and year	
+    d2 = today.strftime("%B %d, %Y")
+    print("d2 =", d2)
+
+    # mm/dd/y
+    d3 = today.strftime("%m/%d/%y")
+    print("d3 =", d3)
+    '''
+    # Month abbreviation, day and year	
+    d4 = today.strftime("%b-%d-%Y")
+    #print("d4 =", d4)
+
+    fileName = open('/home/pi/info/s1/'+current_time+'-'+d4+'-getprice.txt','w+')
+    #fileName.write("Try to use file.write()\nHail HYDRA")
+  
+
+    return fileName
+
+
 
 # init to login
-def login(timex): 
+def login(timex,filename): 
 
     for i in range(1,1):               
                                     
@@ -139,9 +170,10 @@ def login(timex):
 
     content.click()
     print ("done to loging!")
+    
 # to get 外資 list3
 
-def toGetFstock(fstock_name,fstock_num,timex):
+def toGetFstock(fstock_name,fstock_num,timex,filename):
 
              
     fstock_name.clear()
@@ -151,6 +183,8 @@ def toGetFstock(fstock_name,fstock_num,timex):
     url ='https://www.wantgoo.com/stock/institutional-investors/foreign/net-buy-sell-rank'
     driver.get(url) 
     sleep(5 * timex)  
+    content = driver.find_element_by_xpath("/html[1]/body[1]/div[2]/main[1]/div[1]/div[1]/div[1]/div[1]/div[4]/time[1]")
+    print(content.text) # 把排版後的 html 印出來
     for i in range(1,51):
         converted_num = str(i) 
         #print(converted_num) 
@@ -174,7 +208,8 @@ def toGetFstock(fstock_name,fstock_num,timex):
     print(len(fstock_name))
     print(len(fstock_num))
 
-def toGetTstock(tstock_name,tstock_num,timex):
+def toGetTstock(tstock_name,tstock_num,timex,filename):
+
 
             
     tstock_name.clear()
@@ -183,6 +218,8 @@ def toGetTstock(tstock_name,tstock_num,timex):
     url ='https://www.wantgoo.com/stock/institutional-investors/investment-trust/net-buy-sell-rank'
     driver.get(url) 
     sleep(5 * timex)  
+    content = driver.find_element_by_xpath("/html[1]/body[1]/div[2]/main[1]/div[1]/div[1]/div[1]/div[1]/div[4]/time[1]")
+    print(content.text) # 把排版後的 html 印出來
     for i in range(1,51):
         converted_num = str(i) 
         #print(converted_num) 
@@ -205,13 +242,14 @@ def toGetTstock(tstock_name,tstock_num,timex):
     print(tstock_num)
     print(len(tstock_name))
      
-def toGetFstockParmeter(fstock_name,fstock_num,timex, allVlue):
+def toGetFstockParmeter(fstock_name,fstock_num,timex, allVlue,filename):
+
 
 
     foreignInvestment = np.zeros((len(fstock_num), allVlue), dtype=float)
 
     url ='https://www.wantgoo.com/stock/institutional-investors/foreign/net-buy-sell-rank'
-
+    print('toGetFstockParmeter 投信  ========================================', file=filename)
     for i in range(0,len(fstock_num)):
     
         url ="https://www.wantgoo.com/stock/"+fstock_num[i]+"/technical-chart"
@@ -298,16 +336,17 @@ def toGetFstockParmeter(fstock_name,fstock_num,timex, allVlue):
         vals = [contentNow_5,content520,content560,content2060,kdk,kdd,wkdk,contentNow,content5,content20,content60]
         print(i,'=', fstock_name[i], vals)
         foreignInvestment[i,] = vals
+        print(i,'=', fstock_name[i], vals, file=filename)
+        
 
- 
     return foreignInvestment
 
-def toGetTstockParmeter(tstock_name,tstock_num,timex, allVlue):
+def toGetTstockParmeter(tstock_name,tstock_num,timex, allVlue,filename):
 
     # 创建一个 50 x 8 的数组且所有值全为 0
 
     TrustInvestment   = np.zeros((len(tstock_num), allVlue), dtype=float)
-
+    print('toGetTstockParmeter 外資 ========================================', file=filename)
     for i in range(0,len(tstock_num)):
         #url ='https://www.wantgoo.com/stock/2330/technical-chart'
         url ="https://www.wantgoo.com/stock/"+tstock_num[i]+"/technical-chart"
@@ -392,11 +431,14 @@ def toGetTstockParmeter(tstock_name,tstock_num,timex, allVlue):
         vals = [contentNow_5,content520,content560,content2060,kdk,kdd,wkdk,contentNow,content5,content20,content60]
         print(i,'=', tstock_name[i], vals)
         TrustInvestment[i,] = vals
+        print(i,'=', TrustInvestment[i], vals, file=filename)
 
-
+    print('Debug req1')
+    print(TrustInvestment)
     return TrustInvestment
 
-def toGetMystockParmeter(timex):
+def toGetMystockParmeter(timex,filename):
+
 
     mystock = np.zeros((len(mystock_num), allVlue), dtype=float)
     mystock_name.clear
@@ -405,6 +447,7 @@ def toGetMystockParmeter(timex):
     print(type(mystock_name))
     print(len(mystock_num))
     '''
+    print('toGetMystockParmeter 自選 ========================================', file=filename)
     for i in range(0,(len(mystock_num))):
     
         url ="https://www.wantgoo.com/stock/"+mystock_num[i]+"/technical-chart"
@@ -491,12 +534,14 @@ def toGetMystockParmeter(timex):
         print( name,'=', vals)
 
         mystock[i,] = vals
+        print(i,'=', mystock[i], vals, file=filename)
         #print( name)
-
+    
     return mystock
 
 
-def check_2060_vaule(ft,tt,tstock_name,tstock_num,fstock_name,fstock_num,timex, allVlue,mt,mystock_name,mystock_num):
+def check_2060_vaule(ft,tt,tstock_name,tstock_num,fstock_name,fstock_num,timex, allVlue,mt,mystock_name,mystock_num,filename):
+
 
     TrustInvestment = tt
     foreignInvestment =ft
@@ -552,15 +597,28 @@ def check_2060_vaule(ft,tt,tstock_name,tstock_num,fstock_name,fstock_num,timex, 
         if mystock[i, 2]  < comparefor560 and mystock[i, 2] > 0 :
             print('<'+' =' ,comparefor560 ,mystock_name[i],mystock[i,2] )
 
-login(timex)
-toGetTstock(tstock_name,tstock_num,timex)
-toGetFstock(fstock_name,fstock_num,timex)
-toGetTstock(tstock_name,tstock_num,timex)
-ft = toGetFstockParmeter(fstock_name,fstock_num,timex,allVlue)
-tt = toGetTstockParmeter(tstock_name,tstock_num,timex,allVlue)
-mt = toGetMystockParmeter(timex)
-check_2060_vaule(ft,tt,tstock_name,tstock_num,fstock_name,fstock_num,timex, allVlue,mt,mystock_name,mystock_num)
-#check_2060_vaule(0,0,0,0,0,0,0, 0,mt,mystock_name,mystock_num)
+check.ifCreate() 
+check.ifalreadyGet()
+'''
+driver = webdriver.Chrome(chrome_options=options, executable_path=r'/home/pi/work/stock/getPrice/i386/usr/bin/chromedriver')
+##driver = webdriver.Chrome(chrome_options=options, executable_path=r'/home/pi/work/stock/getPrice/chromedriver_linux64/chromedriver')
+###driver=webdriver.Chrome(executable_path='/home/pi/work/stock/getPrice/chromedriver_linux64/chromedriver')
+driver.get(url) 
+driver.maximize_window()  
+check.iftodaybuy(timex.driver)
+sleep(2)  
+filename = toGetTimeFile(times)
+login(timex,filename)
+toGetTstock(tstock_name,tstock_num,timex,filename)
+toGetFstock(fstock_name,fstock_num,timex,filename)
+toGetTstock(tstock_name,tstock_num,timex,filename)
+ft = toGetFstockParmeter(fstock_name,fstock_num,timex,allVlue,filename)
+tt = toGetTstockParmeter(tstock_name,tstock_num,timex,allVlue,filename)
+mt = toGetMystockParmeter(timex,filename)
+check_2060_vaule(ft,tt,tstock_name,tstock_num,fstock_name,fstock_num,timex, allVlue,mt,mystock_name,mystock_num,filename)
+#check_2060_vaule(0,0,0,0,0,0,0, 0,mt,mystock_name,mystock_num,filename)
+filename.close()
 
 driver.close()
 driver.quit()
+'''
