@@ -29,20 +29,19 @@ def iftodaybuy(timex,driver):
     content = driver.find_element_by_xpath("/html[1]/body[1]/div[2]/main[1]/div[1]/div[1]/div[1]/div[1]/div[4]/time[1]")
     pageLastUpdateTime = content.text # 把排版後的 html 印出來
     pageLastUpdateTimeList = pageLastUpdateTime.split('/')
-
+    today = date.today()
+    day= today.strftime("%d")
     dd = int(day)
     webdd = int(pageLastUpdateTimeList[2])
     print("dd =", dd)
     print("webdd =", webdd)
-
+    #return 1
     if (dd != webdd):
         print("Wantgoo has not updated web for this info")
         return 0
     else :
         print("Wantgoo has updated web for this info")   
         return 1
-
-
 
 
 
@@ -55,14 +54,14 @@ def ifalreadyGet():
     day= today.strftime("%d")
     year = today.strftime("%Y")
     print(mainpath+year+"/"+month+"/"+day)
-
     dir = os.listdir(mainpath+year+"/"+month+"/"+day)
-
     # Checking if the list is empty or not 
     if len(dir) == 0: 
         print("Empty directory") 
     else: 
         print("Not empty directory") 
+        print("We already Got this result") 
+        exit(1)
 
 
 # init to login

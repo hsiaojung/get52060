@@ -112,37 +112,22 @@ times = "0000000"
 
 def toGetTimeFile(times):
 
-    today = date.today()
     now = datetime.now()
     current_time = now.strftime("%H:%M:%S")
     print("Current Time =", current_time)
-
-    '''
-    d1 = today.strftime("%d/%m/%Y")
-    print("d1 =", d1)
-
-    # Textual month, day and year	
-    d2 = today.strftime("%B %d, %Y")
-    print("d2 =", d2)
-
-    # mm/dd/y
-    d3 = today.strftime("%m/%d/%y")
-    print("d3 =", d3)
-    '''
-    # Month abbreviation, day and year	
-    d4 = today.strftime("%b-%d-%Y")
-    #print("d4 =", d4)
-
-    fileName = open('/home/pi/info/s1/'+current_time+'-'+d4+'-getprice.txt','w+')
+    mainpath = "/home/pi/info/s1/"
+    today = date.today()
+    month = today.strftime("%b")
+    day= today.strftime("%d")
+    year = today.strftime("%Y")
+    print(mainpath+year+"/"+month+"/"+day)
+    fileName = open(mainpath+year+"/"+month+"/"+day+"/"+current_time+'-'+day+'-getprice.txt','w+')
     #fileName.write("Try to use file.write()\nHail HYDRA")
-  
-
     return fileName
 
 
-
 # init to login
-def login(timex,filename): 
+def login(timex): 
 
     for i in range(1,1):               
                                     
@@ -431,7 +416,7 @@ def toGetTstockParmeter(tstock_name,tstock_num,timex, allVlue,filename):
         vals = [contentNow_5,content520,content560,content2060,kdk,kdd,wkdk,contentNow,content5,content20,content60]
         print(i,'=', tstock_name[i], vals)
         TrustInvestment[i,] = vals
-        print(i,'=', TrustInvestment[i], vals, file=filename)
+        print(i,'=', tstock_name[i], vals, file=filename)
 
     print('Debug req1')
     print(TrustInvestment)
@@ -531,11 +516,12 @@ def toGetMystockParmeter(timex,filename):
         # Totol vaule all be put to val for Numpy arrary
         
         vals = [contentNow_5,content520,content560,content2060,kdk,kdd,wkdk,contentNow,content5,content20,content60]
-        print( name,'=', vals)
+ 
 
+        vals = [contentNow_5,content520,content560,content2060,kdk,kdd,wkdk,contentNow,content5,content20,content60]
+        print(i,'=', mystock_name[i], vals)
         mystock[i,] = vals
-        print(i,'=', mystock[i], vals, file=filename)
-        #print( name)
+        print(i,'=', mystock_name[i], vals, file=filename)
     
     return mystock
 
@@ -548,38 +534,46 @@ def check_2060_vaule(ft,tt,tstock_name,tstock_num,fstock_name,fstock_num,timex, 
     mystock = mt
     comparefor520 = 2.7
     comparefor560 = 2.1
+    print('check_2060_vaule  ========================================', file=filename)
 
 
-
-    print('投信..........',comparefor520)
+    print('投信.....comparefor520.....')
+    print('投信  .....comparefor520......', file=filename)
     for i in range(0,len(tstock_num)):
 
         if TrustInvestment[i, 1]  < comparefor520 and TrustInvestment[i, 1] > 0 :          
             print('<'+' =',comparefor520 ,tstock_name[i] ,TrustInvestment[i, 1])
+            print('<'+' =',comparefor520 ,tstock_name[i] ,TrustInvestment[i, 1], file=filename)
+
             
-            
-    print('外資..........',comparefor520)
+    print('外資.......comparefor520...')
+    print('外資  .....comparefor520......', file=filename)
     for i in range(0,len(fstock_num)):
 
         if foreignInvestment[i, 1]  < comparefor520  and foreignInvestment[i, 1] > 0:          
             print('<'+' =',comparefor520 ,fstock_name[i] ,foreignInvestment[i, 1])
+            print('<'+' =',comparefor520 ,fstock_name[i] ,foreignInvestment[i, 1], file=filename)
             
 
+    
 
-    comparefor560 = 2.1
-
-    print('投信..........',comparefor560)
+    print('投信.......comparefor560...')
+    print('投信  .....comparefor560......', file=filename)
     for i in range(0,len(tstock_num)):
         
         if TrustInvestment[i, 2]  < comparefor560 and  TrustInvestment[i,2] > 0:          
-            print('<'+' =',comparefor560 ,tstock_name[i] ,TrustInvestment[i, 2])           
-    print('外資...........',comparefor560)
+            print('<'+' =',comparefor560 ,tstock_name[i] ,TrustInvestment[i, 2])
+            print('<'+' =',comparefor560 ,tstock_name[i] ,TrustInvestment[i, 2], file=filename)      
+    print('外資.......comparefor560...')
+    print('外資  .....comparefor560......', file=filename)
+
     for i in range(0,len(fstock_num)):
         
         if foreignInvestment[i, 2]  < comparefor560 and  foreignInvestment[i,2] > 0:    
             print('<'+' =',comparefor560 ,fstock_name[i] ,foreignInvestment[i, 2])
-    
-    print('自選.............',comparefor520)
+            print('<'+' =',comparefor560 ,fstock_name[i] ,foreignInvestment[i, 2], file=filename)
+    print('自選.........comparefor520....')
+    print('自選.........comparefor520....',file=filename)
     '''
     print(mystock_name)
     print(type(mystock_name))
@@ -590,35 +584,42 @@ def check_2060_vaule(ft,tt,tstock_name,tstock_num,fstock_name,fstock_num,timex, 
 
         if mystock[i, 1]  < comparefor520 and mystock[i, 1] > 0:     
             print('<'+' =' ,comparefor520 ,mystock_name[i],mystock[i,1] )
-    
-    print('自選...............',comparefor560)
+            print('<'+' =' ,comparefor520 ,mystock_name[i],mystock[i,1] , file=filename)
+    print('自選.........comparefor560....')
+    print('自選.........comparefor560....',file=filename)
     for i in range(0,len(mystock_num)):
         
         if mystock[i, 2]  < comparefor560 and mystock[i, 2] > 0 :
             print('<'+' =' ,comparefor560 ,mystock_name[i],mystock[i,2] )
+            print('<'+' =' ,comparefor560 ,mystock_name[i],mystock[i,2] , file=filename)
 
 check.ifCreate() 
 check.ifalreadyGet()
-'''
 driver = webdriver.Chrome(chrome_options=options, executable_path=r'/home/pi/work/stock/getPrice/i386/usr/bin/chromedriver')
 ##driver = webdriver.Chrome(chrome_options=options, executable_path=r'/home/pi/work/stock/getPrice/chromedriver_linux64/chromedriver')
 ###driver=webdriver.Chrome(executable_path='/home/pi/work/stock/getPrice/chromedriver_linux64/chromedriver')
 driver.get(url) 
 driver.maximize_window()  
-check.iftodaybuy(timex.driver)
 sleep(2)  
-filename = toGetTimeFile(times)
-login(timex,filename)
-toGetTstock(tstock_name,tstock_num,timex,filename)
-toGetFstock(fstock_name,fstock_num,timex,filename)
-toGetTstock(tstock_name,tstock_num,timex,filename)
-ft = toGetFstockParmeter(fstock_name,fstock_num,timex,allVlue,filename)
-tt = toGetTstockParmeter(tstock_name,tstock_num,timex,allVlue,filename)
-mt = toGetMystockParmeter(timex,filename)
-check_2060_vaule(ft,tt,tstock_name,tstock_num,fstock_name,fstock_num,timex, allVlue,mt,mystock_name,mystock_num,filename)
-#check_2060_vaule(0,0,0,0,0,0,0, 0,mt,mystock_name,mystock_num,filename)
-filename.close()
+login(timex)
+ret = check.iftodaybuy(timex,driver)
+if (ret == 1): 
+    filename = toGetTimeFile(times)
+    toGetTstock(tstock_name,tstock_num,timex,filename)
+    toGetFstock(fstock_name,fstock_num,timex,filename)
+    toGetTstock(tstock_name,tstock_num,timex,filename)
+    ft = toGetFstockParmeter(fstock_name,fstock_num,timex,allVlue,filename)
+    tt = toGetTstockParmeter(tstock_name,tstock_num,timex,allVlue,filename)
+    mt = toGetMystockParmeter(timex,filename)
+    check_2060_vaule(ft,tt,tstock_name,tstock_num,fstock_name,fstock_num,timex, allVlue,mt,mystock_name,mystock_num,filename)
+    ##########  this is for test =>  check_2060_vaule(0,0,0,0,0,0,0, 0,mt,mystock_name,mystock_num,filename)
+    filename.close()
+
+else:
+    print("Wantgoo has not updated web for this info, SKIP !")   
+
 
 driver.close()
-driver.quit()
-'''
+driver.quit()    
+
+
